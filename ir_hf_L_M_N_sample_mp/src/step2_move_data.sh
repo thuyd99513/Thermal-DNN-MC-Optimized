@@ -1,0 +1,1 @@
+mv ../data/* ../data1

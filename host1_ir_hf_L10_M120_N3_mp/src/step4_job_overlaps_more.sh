@@ -1,0 +1,21 @@
+#!/bin/bash 
+##SBATCH -p vip_33 
+#SBATCH -N 1
+#SBATCH -n 1
+#SBATCH -c 1 
+#SBATCH -J ov4
+module load anaconda/3.7.3-zyq
+
+OUTPUT_LOG='std_overlap_ave_over_sample.log'
+# This script calcuate the average overlap for S and J, over different initial configurations (i.e., different init's). 
+B=66.7
+I=784
+J=2
+L=10
+M=480
+N=3
+R=24
+S=100
+
+#R: the number of replicas
+srun -n 1 python3 main_overlap_log_tw_ave_over_sample.py -L $L -M $M -N $N -B $B -I $I -J $J -R $R -S $S

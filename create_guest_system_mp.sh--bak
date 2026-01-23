@@ -1,0 +1,45 @@
+L=10
+N=3
+T=100
+R=24
+W=1024
+for i in `seq 120 1 120`;
+do 
+    for j in `seq 1 1 4`;
+        do cp -r ir_hf_L_M_N_sample_mp ir_hf_L${L}_M${i}_N${N}_sample${j}_mp_tw${W}
+           cd ir_hf_L${L}_M${i}_N${N}_sample${j}_mp_tw${W}/src/
+           sed -i "s/L=0/L=$L/g" step4_job_overlaps_more 
+           sed -i "s/L=0/L=$L/g" step4b_job_autocorr_more 
+           sed -i "s/L=0/L=$L/g" step5_job_overlaps_more_ave_over_sample.sh
+           sed -i "s/L=0/L=$L/g" step6_job_relaxation_time.sh 
+           sed -i "s/L=0/L=$L/g" step7_job_tau_of_alpha.sh 
+
+           sed -i "s/N=0/N=$N/g" step4_job_overlaps_more 
+           sed -i "s/N=0/N=$N/g" step4b_job_autocorr_more 
+           sed -i "s/N=0/N=$N/g" step5_job_overlaps_more_ave_over_sample.sh
+           sed -i "s/N=0/N=$N/g" step6_job_relaxation_time.sh 
+           sed -i "s/N=0/N=$N/g" step7_job_tau_of_alpha.sh 
+
+
+           sed -i "s/M=0/M=$i/g" step4_job_overlaps_more
+           sed -i "s/M=0/M=$i/g" step4b_job_autocorr_more
+           sed -i "s/M=0/M=$i/g" step5_job_overlaps_more_ave_over_sample.sh
+           sed -i "s/M=0/M=$i/g" step6_job_relaxation_time.sh 
+           sed -i "s/M=0/M=$i/g" step7_job_tau_of_alpha.sh 
+            
+           sed -i "s/R=0/R=$R/g" step4_job_overlaps_more
+           sed -i "s/R=0/R=$R/g" step4b_job_autocorr_more 
+
+           sed -i "s/S=0/S=$T/g" step4_job_overlaps_more 
+           sed -i "s/S=0/S=$T/g" step4b_job_autocorr_more 
+           sed -i "s/S=0/S=$T/g" step5_job_overlaps_more_ave_over_sample.sh
+           sed -i "s/S=0/S=$T/g" step6_job_relaxation_time.sh 
+           sed -i "s/S=0/S=$T/g" step7_job_tau_of_alpha.sh 
+
+           sed -i "s/C=0/C=$j/g" step5_job_overlaps_more_ave_over_sample.sh
+           sed -i "s/C=0/C=$j/g" step6_job_relaxation_time.sh 
+           sed -i "s/C=0/C=$j/g" step7_job_tau_of_alpha.sh 
+
+		   cd -
+        done
+done

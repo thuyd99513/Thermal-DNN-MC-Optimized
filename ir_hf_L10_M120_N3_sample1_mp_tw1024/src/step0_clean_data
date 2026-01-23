@@ -1,0 +1,5 @@
+#!/bin/bash
+mkdir -p ../data2
+mv ../data/* ../data2
+mv ../data1/* ../data2
+echo "have cleaned the directory /data1/"

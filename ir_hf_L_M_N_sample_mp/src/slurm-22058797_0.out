@@ -1,0 +1,109 @@
+2025-01-09 14:57:35.926161: I tensorflow/core/platform/cpu_feature_guard.cc:193] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 AVX512F AVX512_VNNI FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-01-09 14:58:38.213633: W tensorflow/compiler/xla/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libnvinfer.so.7'; dlerror: libnvinfer.so.7: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /public1/soft/miniforge/24.11/lib:/opt/slurm/slurm/lib::/public1/home/sch10322/SoftWare/lib:/public1/home/sch10322/SoftWare/lib64
+2025-01-09 14:58:38.214183: W tensorflow/compiler/xla/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libnvinfer_plugin.so.7'; dlerror: libnvinfer_plugin.so.7: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /public1/soft/miniforge/24.11/lib:/opt/slurm/slurm/lib::/public1/home/sch10322/SoftWare/lib:/public1/home/sch10322/SoftWare/lib64
+2025-01-09 14:58:38.214210: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Cannot dlopen some TensorRT libraries. If you would like to use Nvidia GPU with TensorRT, please make sure the missing libraries mentioned above are installed properly.
+starting time:1736405978
+S:
+[[[-1 -1 -1]
+  [-1  1  1]
+  [ 1  1  1]
+  ...
+  [-1  1 -1]
+  [-1  1  1]
+  [-1 -1 -1]]
+
+ [[ 1 -1 -1]
+  [-1 -1 -1]
+  [-1 -1  1]
+  ...
+  [-1 -1 -1]
+  [-1  1  1]
+  [ 1 -1 -1]]
+
+ [[ 1  1  1]
+  [-1  1  1]
+  [ 1  1  1]
+  ...
+  [ 1 -1  1]
+  [ 1  1  1]
+  [-1 -1  1]]
+
+ ...
+
+ [[ 1  1  1]
+  [-1 -1 -1]
+  [-1 -1  1]
+  ...
+  [ 1  1  1]
+  [ 1 -1 -1]
+  [ 1 -1  1]]
+
+ [[ 1  1  1]
+  [ 1 -1  1]
+  [ 1  1  1]
+  ...
+  [-1  1 -1]
+  [-1 -1  1]
+  [-1 -1 -1]]
+
+ [[ 1 -1 -1]
+  [ 1 -1 -1]
+  [-1 -1 -1]
+  ...
+  [ 1  1 -1]
+  [-1  1  1]
+  [ 1  1  1]]]
+J_hidden:
+[[[-1.3112322  -0.6262855  -0.9425692 ]
+  [-1.2719036  -1.0107805  -0.60048634]
+  [-1.1892391  -1.253757   -0.11748856]]
+
+ [[ 1.261885   -0.10579999  1.181716  ]
+  [-1.5992256  -0.6540497  -0.12122793]
+  [ 0.2105777  -1.0496988   1.3615392 ]]
+
+ [[ 0.9916377   1.4058406   0.20066662]
+  [ 1.4427925  -0.94161034 -0.17809854]
+  [ 1.2965398   1.0869051  -0.37097386]]
+
+ [[-0.8534746   1.4899274  -0.22736995]
+  [ 0.93621355  0.31695384  1.4223378 ]
+  [ 1.1761931   1.1051614  -0.62863964]]
+
+ [[-1.3633913  -1.0672859   0.04544264]
+  [ 0.17018583  1.2092601  -1.2283024 ]
+  [ 1.4952219  -0.87005484  0.08553237]]
+
+ [[ 0.465524    0.17970835  1.6586114 ]
+  [ 0.6968733  -1.5456153  -0.3541765 ]
+  [ 1.1534877  -0.93078136 -0.8961655 ]]
+
+ [[-0.9572541   1.4433204  -0.02215864]
+  [ 0.4928016   0.4360597   1.6021854 ]
+  [ 0.3474341   1.1840429   1.2154554 ]]
+
+ [[-1.0142434   0.5628485   1.2862784 ]
+  [-1.0338421   1.3796209  -0.16678305]
+  [-1.5208772   0.55140436 -0.61877704]]]
+J_in:
+[[ 1.7371742  -1.7827315   0.09935602 ...  2.155895    0.8646502
+  -0.43482637]
+ [-0.08572225  0.29148737  0.06020026 ...  0.35544348 -0.73638946
+  -1.2624433 ]
+ [ 2.1815324   0.13266842  0.6643186  ...  0.6263279   0.8198101
+  -2.0677056 ]]
+J_out:
+[[-1.3346525   1.0925537   0.15820692]
+ [-0.11638138  0.11572319 -1.7242573 ]]
+Initial config.s are generated.
+Start process (0).
+# of replicas:1.
+Used1 cores.
+DONE!
+sampled_steps
+92
+self.T_2
+92
+{'random_update_S_batch_total_torch': 5134.356750965118, 'random_update_J_batch_torch': 2653.3772492408752, 'mc_random_update_hyperfine_2': 7793.774905920029}
+MC simulations (guest) done!

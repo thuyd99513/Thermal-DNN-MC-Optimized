@@ -1,0 +1,8 @@
+ERROR: Unable to locate a modulefile for 'miniconda/24.9.2'
+/var/spool/slurmd/job21805456/slurm_script: line 14: activate: No such file or directory
+Traceback (most recent call last):
+  File "main.py", line 39, in <module>
+    from utilities import calc_ener, calc_ener_batch, generate_S_in_and_out_2_spin_v3_resp, list_only_naked_dir, set_seed
+  File "../../py_functions/utilities.py", line 8, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'

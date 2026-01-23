@@ -1,0 +1,66 @@
+#!/bin/bash
+##SBATCH -p vip_33  #NOTE: Use `vip_33` please, except you have a reason.
+#SBATCH -N 1
+#SBATCH -n 1
+#SBATCH -c 24
+#SBATCH -J C_m1n3  # Your job's name.
+#SBATCH --array=0-4  # You HAVE TO SET by yourself.
+
+module purge 
+module load anaconda/3.7.3-zyq
+
+# THE NUMBER OF WORK ITEMS we have, eg, from 0-20. 
+N_WORK=100
+
+# calculate how many work units each array task will process
+# quotient and remainder of jobs to processes 
+quot=$((N_WORK/SLURM_ARRAY_TASK_COUNT))
+rem=$((N_WORK-quot*SLURM_ARRAY_TASK_COUNT))
+
+# the first "rem" tasks get one extra iteration
+if [ "$SLURM_ARRAY_TASK_ID" -lt "$rem" ]; then
+	step=$(( quot+1 ))
+	step_min=$(( step*SLURM_ARRAY_TASK_ID ))
+else
+	step=$quot
+	step_min=$(( step*SLURM_ARRAY_TASK_ID + rem ))
+fi
+step_max=$(( step_min+step-1 ))
+
+# "step_min" is the first work unit we process, and "step_max" is the last
+# Loop through all steps from step_min to step_max, and do one unit of
+# work each iteration.
+
+#=========================
+# Specific scripts  HERE
+#=========================
+
+# Define comon parameters
+B=66.7
+I=784
+J=2
+L=10
+M=120
+N=3
+R=24  # NUMBER OF REPLICAS
+S=100
+
+#
+tw=1024
+
+for j in $(seq $step_min $step_max);
+do 
+	X=$((j+1))
+    cd ./ir_hf_L${L}_M${M}_N${N}_sample${X}_mp_tw${tw}/src/
+    OUTPUT_LOG="autocorr.log$i";
+    ./step2_move_data.sh
+    date >> $OUTPUT_LOG;
+    python3 main_autocorr_log_tw_GUI.py -L $L -M $M -N $N -S $S -B $B -I $I -J $J -C ${X} -R $R >> $OUTPUT_LOG
+    cd -;  
+done
+
+#=======
+# README
+#=======
+# TO RUN THIS SCRIPT:  sbatch arr_submit_XXX or u arr_submit_XXX
+
