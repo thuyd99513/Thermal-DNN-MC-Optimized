@@ -1,0 +1,87 @@
+{
+  "timestamp": "2026-01-26 09:12:30",
+  "breakdown": {
+    "part_gap_hidden_before_flip_layer": {
+      "calls": 35,
+      "total_time": 0.02964774105930701,
+      "avg_time": 0.0008470783159802003,
+      "percentage": 22.625362401685255
+    },
+    "part_gap_hidden_after_flip_layer": {
+      "calls": 35,
+      "total_time": 0.0970051831100136,
+      "avg_time": 0.002771576660286103,
+      "percentage": 74.0284873075317
+    },
+    "compute_energy_diff": {
+      "calls": 35,
+      "total_time": 0.0023581086425110698,
+      "avg_time": 6.737453264317342e-05,
+      "percentage": 1.799565859423561
+    },
+    "metropolis_decision": {
+      "calls": 35,
+      "total_time": 0.0010378549341112375,
+      "avg_time": 2.965299811746393e-05,
+      "percentage": 0.7920280994653557
+    },
+    "apply_updates": {
+      "calls": 35,
+      "total_time": 0.0009887528140097857,
+      "avg_time": 2.825008040027959e-05,
+      "percentage": 0.7545563318941237
+    }
+  },
+  "loop_impact": [
+    {
+      "M": 30,
+      "N": 3,
+      "L": 10,
+      "time_before": 0.0002383527928031981,
+      "time_after": 0.0007306005922146141,
+      "ratio": 3.065206761885323,
+      "total_spins": 810
+    },
+    {
+      "M": 60,
+      "N": 3,
+      "L": 10,
+      "time_before": 0.0004419635864906013,
+      "time_after": 0.0014107097988016904,
+      "ratio": 3.1919140895823332,
+      "total_spins": 1620
+    },
+    {
+      "M": 120,
+      "N": 3,
+      "L": 10,
+      "time_before": 0.0008302730042487383,
+      "time_after": 0.002797205396927893,
+      "ratio": 3.3690188439390583,
+      "total_spins": 3240
+    },
+    {
+      "M": 120,
+      "N": 5,
+      "L": 10,
+      "time_before": 0.0008688899804838001,
+      "time_after": 0.004679054010193795,
+      "ratio": 5.3850937578869145,
+      "total_spins": 5400
+    },
+    {
+      "M": 240,
+      "N": 3,
+      "L": 10,
+      "time_before": 0.0016384343965910376,
+      "time_after": 0.005559926806017757,
+      "ratio": 3.393438771540601,
+      "total_spins": 6480
+    }
+  ],
+  "memory_operations": {
+    "copy": 0.007115156971849501,
+    "preallocate": 0.00705079099861905,
+    "math": 0.0072790299891494215
+  }
+}

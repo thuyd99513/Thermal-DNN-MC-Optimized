@@ -1,0 +1,307 @@
+{
+  "timestamp": "2026-01-26 08:52:16",
+  "tests": {
+    "soft_core_potential": {
+      "name": "软核势能函数测试",
+      "status": "PASSED",
+      "details": [
+        {
+          "input": [
+            -2.0,
+            -1.0,
+            0.0,
+            1.0,
+            2.0
+          ],
+          "expected": [
+            4.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "result": [
+            4.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "passed": true
+        },
+        {
+          "input": [
+            -0.5
+          ],
+          "expected": [
+            0.25
+          ],
+          "result": [
+            0.25
+          ],
+          "passed": true
+        },
+        {
+          "input": [
+            0.5
+          ],
+          "expected": [
+            0.0
+          ],
+          "result": [
+            0.0
+          ],
+          "passed": true
+        },
+        {
+          "input": [
+            0.0
+          ],
+          "expected": [
+            0.0
+          ],
+          "result": [
+            0.0
+          ],
+          "passed": true
+        },
+        {
+          "input": [
+            -3.0,
+            -1.5,
+            -0.1
+          ],
+          "expected": [
+            9.0,
+            2.25,
+            0.01
+          ],
+          "result": [
+            9.0,
+            2.25,
+            0.010000000000000002
+          ],
+          "passed": true
+        }
+      ],
+      "figure": "soft_core_potential.png"
+    },
+    "calc_ener": {
+      "name": "能量计算函数测试",
+      "status": "PASSED",
+      "details": [
+        {
+          "description": "混合正负值",
+          "input_shape": [
+            4
+          ],
+          "expected": 5.0,
+          "result": 5.0,
+          "passed": 1
+        },
+        {
+          "description": "2D数组",
+          "input_shape": [
+            2,
+            2
+          ],
+          "expected": 5.0,
+          "result": 5.0,
+          "passed": 1
+        },
+        {
+          "description": "全正值",
+          "input_shape": [
+            3
+          ],
+          "expected": 0.0,
+          "result": 0.0,
+          "passed": 1
+        },
+        {
+          "description": "全负值",
+          "input_shape": [
+            3
+          ],
+          "expected": 3.0,
+          "result": 3.0,
+          "passed": 1
+        },
+        {
+          "description": "全零",
+          "input_shape": [
+            3
+          ],
+          "expected": 0.0,
+          "result": 0.0,
+          "passed": 1
+        }
+      ],
+      "figure": "calc_ener.png"
+    },
+    "part_gap_logic": {
+      "name": "part_gap 计算逻辑测试",
+      "status": "PASSED",
+      "details": {
+        "test_positions": [
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            1,
+            2,
+            1
+          ],
+          [
+            2,
+            1,
+            2
+          ],
+          [
+            3,
+            2,
+            0
+          ]
+        ],
+        "delta_E_values": [
+          -0.11852319538593292,
+          1.380462408065796,
+          1.1061878204345703,
+          0.8921899795532227
+        ],
+        "sign_check_passed": true
+      },
+      "figure": "part_gap_logic.png"
+    },
+    "metropolis_acceptance": {
+      "name": "Metropolis 接受准则测试",
+      "status": "PASSED",
+      "details": [
+        {
+          "delta_E": -1.0,
+          "description": "能量降低",
+          "accept_prob": 1.0,
+          "reason": "delta_E < EPS"
+        },
+        {
+          "delta_E": -0.1,
+          "description": "能量小幅降低",
+          "accept_prob": 1.0,
+          "reason": "delta_E < EPS"
+        },
+        {
+          "delta_E": 0.0,
+          "description": "能量不变",
+          "accept_prob": 1.0,
+          "reason": "delta_E < EPS"
+        },
+        {
+          "delta_E": 1e-07,
+          "description": "能量微小增加",
+          "accept_prob": 1.0,
+          "reason": "delta_E < EPS"
+        },
+        {
+          "delta_E": 0.001,
+          "description": "能量极小增加",
+          "accept_prob": 0.9354758019851703,
+          "reason": "exp(-0.001 * 66.7)"
+        },
+        {
+          "delta_E": 0.01,
+          "description": "能量小幅增加",
+          "accept_prob": 0.5132460085129188,
+          "reason": "exp(-0.01 * 66.7)"
+        },
+        {
+          "delta_E": 0.1,
+          "description": "能量中等增加",
+          "accept_prob": 0.0012683987510072377,
+          "reason": "exp(-0.1 * 66.7)"
+        },
+        {
+          "delta_E": 1.0,
+          "description": "能量大幅增加",
+          "accept_prob": 1.0778493323691559e-29,
+          "reason": "exp(-1.0 * 66.7)"
+        }
+      ],
+      "figure": "metropolis_acceptance.png"
+    },
+    "energy_conservation": {
+      "name": "能量增量更新一致性测试",
+      "status": "PASSED",
+      "details": [
+        {
+          "position": [
+            0,
+            1,
+            0
+          ],
+          "delta_E_incremental": -0.11852319538593292,
+          "delta_E_total": -0.11852321365476826,
+          "difference": 1.8268835333401512e-08,
+          "passed": 1
+        },
+        {
+          "position": [
+            1,
+            2,
+            1
+          ],
+          "delta_E_incremental": 1.380462408065796,
+          "delta_E_total": 1.3804625211177566,
+          "difference": 1.1305196068178702e-07,
+          "passed": 1
+        },
+        {
+          "position": [
+            2,
+            1,
+            2
+          ],
+          "delta_E_incremental": 1.1061878204345703,
+          "delta_E_total": 1.1061877101601425,
+          "difference": 1.1027442781141872e-07,
+          "passed": 1
+        },
+        {
+          "position": [
+            3,
+            2,
+            0
+          ],
+          "delta_E_incremental": 0.8921899795532227,
+          "delta_E_total": 0.8921900425883784,
+          "difference": 6.303515576178143e-08,
+          "passed": 1
+        },
+        {
+          "position": [
+            0,
+            2,
+            1
+          ],
+          "delta_E_incremental": -0.7403954863548279,
+          "delta_E_total": -0.7403955371807172,
+          "difference": 5.082588927507459e-08,
+          "passed": 1
+        },
+        {
+          "position": [
+            1,
+            1,
+            0
+          ],
+          "delta_E_incremental": -3.624948263168335,
+          "delta_E_total": -3.624947994072599,
+          "difference": 2.6909573591638036e-07,
+          "passed": 1
+        }
+      ],
+      "figure": "energy_conservation.png"
+    }
+  }
+}
