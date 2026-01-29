@@ -5,6 +5,8 @@ run_experiment1_full.py - 实验一完整复现（MC版本）
 复现论文 "Liquid and solid layers in a thermal deep learning machine" 中的 Figure 1b。
 使用与论文一致的参数规模进行蒙特卡洛模拟。
 
+**重要**: 本版本使用真实 MNIST 数据作为边界条件，与论文一致。
+
 论文参数:
 - L = 10 (层数)
 - M = 2000 (样本数)
@@ -13,6 +15,7 @@ run_experiment1_full.py - 实验一完整复现（MC版本）
 - t* = 5×10^5 (模拟时间，这里用 MC 步数近似)
 - N_s = 8 (独立样本/初始配置)
 - N_r = 8 (每个样本的副本数)
+- 数据: MNIST 数字 0 和 1，二值化为 ±1
 
 作者：Manus AI
 日期：2026-01-29
@@ -30,6 +33,7 @@ from time import time
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'py_functions'))
 
 from Network_optimized_v3 import NetworkOptimizedV3, warmup_jit
+from mnist_loader import load_mnist_binary, prepare_boundary_conditions
 
 
 # ============================================================================
@@ -47,6 +51,7 @@ PAPER_CONFIG = {
     'mc_steps': 500000,         # MC 步数 (对应论文的 t* = 5×10^5)
     'num_samples': 8,           # 独立样本数 N_s
     'num_replicas': 8,          # 每个样本的副本数 N_r
+    'use_mnist': True,          # 使用真实 MNIST 数据
 }
 
 # 可选的快速测试配置
@@ -60,6 +65,7 @@ QUICK_CONFIG = {
     'mc_steps': 50000,
     'num_samples': 2,
     'num_replicas': 4,
+    'use_mnist': True,          # 使用真实 MNIST 数据
 }
 
 # 中等规模配置 (用于验证)
@@ -73,7 +79,89 @@ MEDIUM_CONFIG = {
     'mc_steps': 200000,
     'num_samples': 4,
     'num_replicas': 6,
+    'use_mnist': True,          # 使用真实 MNIST 数据
 }
+
+# 随机数据配置 (用于对比测试)
+RANDOM_CONFIG = {
+    'L': 10,
+    'M': 500,
+    'N_values': [5, 10, 20, 40],
+    'N_in': 784,
+    'N_out': 2,
+    'beta': 1e5,
+    'mc_steps': 50000,
+    'num_samples': 2,
+    'num_replicas': 4,
+    'use_mnist': False,         # 使用随机数据
+}
+
+
+# ============================================================================
+# 数据加载函数
+# ============================================================================
+
+def load_boundary_conditions(config, data_dir='./data/mnist', verbose=True):
+    """
+    加载边界条件数据
+    
+    Args:
+        config: 配置字典
+        data_dir: MNIST 数据目录
+        verbose: 是否打印详细信息
+    
+    Returns:
+        dict: {
+            'S_in': shape (M, N_in) 的输入边界条件
+            'S_out': shape (M, N_out) 的输出边界条件
+        }
+    """
+    M = config['M']
+    N_in = config['N_in']
+    N_out = config['N_out']
+    use_mnist = config.get('use_mnist', True)
+    
+    if use_mnist:
+        if verbose:
+            print("\n加载真实 MNIST 数据...")
+        
+        # 加载 MNIST 数据
+        mnist_data = load_mnist_binary(
+            data_dir=data_dir,
+            num_train=M,
+            num_test=400,
+            digits=(0, 1),
+            seed=42,
+            verbose=verbose
+        )
+        
+        # 准备边界条件
+        boundary = prepare_boundary_conditions(mnist_data, N_out=N_out)
+        
+        S_in = boundary['S_in']
+        S_out = boundary['S_out']
+        
+        if verbose:
+            print(f"  边界条件准备完成:")
+            print(f"    S_in shape: {S_in.shape}")
+            print(f"    S_out shape: {S_out.shape}")
+    else:
+        if verbose:
+            print("\n生成随机边界条件...")
+        
+        np.random.seed(42)
+        S_in = np.random.choice([-1, 1], size=(M, N_in)).astype(np.float64)
+        S_out = np.random.choice([-1, 1], size=(M, N_out)).astype(np.float64)
+        
+        if verbose:
+            print(f"  随机边界条件生成完成:")
+            print(f"    S_in shape: {S_in.shape}")
+            print(f"    S_out shape: {S_out.shape}")
+    
+    return {
+        'S_in': S_in,
+        'S_out': S_out,
+    }
 
 
 # ============================================================================
@@ -101,13 +189,14 @@ def compute_layer_overlap(S1, S2):
     return q_l
 
 
-def run_single_sample(config, sample_id, output_dir, verbose=True):
+def run_single_sample(config, sample_id, boundary_data, output_dir, verbose=True):
     """
     运行单个样本的多副本模拟
     
     Args:
         config: 配置字典
         sample_id: 样本编号
+        boundary_data: 边界条件数据 {'S_in': ..., 'S_out': ...}
         output_dir: 输出目录
         verbose: 是否打印详细信息
     
@@ -123,6 +212,10 @@ def run_single_sample(config, sample_id, output_dir, verbose=True):
     mc_steps = config['mc_steps']
     num_replicas = config['num_replicas']
     
+    # 获取共享的边界条件
+    S_in_shared = boundary_data['S_in']
+    S_out_shared = boundary_data['S_out']
+    
     results = {}
     
     for N in N_values:
@@ -135,25 +228,21 @@ def run_single_sample(config, sample_id, output_dir, verbose=True):
             print(f"副本数={num_replicas}")
             print(f"{'='*60}")
         
-        # 设置随机种子（确保可重复性）
+        # 设置随机种子（确保可重复性，但每个副本有不同的初始配置）
         base_seed = sample_id * 1000 + N
-        np.random.seed(base_seed)
         
-        # 生成共享的边界条件 (所有副本共享相同的输入/输出)
-        S_in_shared = np.random.choice([-1, 1], size=(M, N_in)).astype(np.float64)
-        S_out_shared = np.random.choice([-1, 1], size=(M, N_out)).astype(np.float64)
-        
-        # 创建副本
+        # 创建副本 (所有副本共享相同的边界条件，但有不同的初始隐藏层配置)
         replicas = []
         for r in range(num_replicas):
             np.random.seed(base_seed + r + 1)  # 每个副本不同的初始配置
             net = NetworkOptimizedV3(M, N, L, N_in, N_out, beta)
+            # 设置共享的边界条件
             net.S_in = S_in_shared.copy()
             net.S_out = S_out_shared.copy()
             replicas.append(net)
         
         if verbose:
-            print(f"  {num_replicas} 个副本初始化完成")
+            print(f"  {num_replicas} 个副本初始化完成 (使用共享边界条件)")
         
         # 运行 MC 模拟
         start_time = time()
@@ -257,6 +346,7 @@ def aggregate_results(all_results, config, output_dir):
     aggregated = {
         'config': config,
         'timestamp': datetime.now().isoformat(),
+        'data_source': 'MNIST' if config.get('use_mnist', True) else 'Random',
         'results': {}
     }
     
@@ -305,6 +395,7 @@ def print_final_summary(aggregated):
     print(f"\n配置: M={config['M']}, L={config['L']}, β={config['beta']:.0e}")
     print(f"MC步数: {config['mc_steps']:,}")
     print(f"独立样本数: {config['num_samples']}, 副本数: {config['num_replicas']}")
+    print(f"数据来源: {aggregated.get('data_source', 'Unknown')}")
     
     print("\n层重叠参数 q_l* (相变边界 q* = 1/e ≈ 0.368):")
     print("-" * 70)
@@ -352,6 +443,9 @@ def main():
   # 快速测试
   python run_experiment1_full.py --config quick
   
+  # 使用随机数据进行对比测试
+  python run_experiment1_full.py --config random
+  
   # 只运行特定样本 (用于并行计算)
   python run_experiment1_full.py --config paper --sample-id 0
   python run_experiment1_full.py --config paper --sample-id 1
@@ -363,14 +457,17 @@ def main():
     )
     
     parser.add_argument('--config', type=str, default='paper',
-                        choices=['paper', 'medium', 'quick'],
-                        help='配置选择: paper(完整), medium(中等), quick(快速测试)')
+                        choices=['paper', 'medium', 'quick', 'random'],
+                        help='配置选择: paper(完整), medium(中等), quick(快速测试), random(随机数据)')
     
     parser.add_argument('--sample-id', type=int, default=None,
                         help='只运行指定的样本ID (用于并行计算)')
     
     parser.add_argument('--output-dir', type=str, default=None,
                         help='输出目录 (默认: results/experiment1_full_YYYYMMDD_HHMMSS)')
+    
+    parser.add_argument('--data-dir', type=str, default='./data/mnist',
+                        help='MNIST 数据目录 (默认: ./data/mnist)')
     
     parser.add_argument('--aggregate-only', action='store_true',
                         help='只汇总已有结果，不运行新模拟')
@@ -385,6 +482,8 @@ def main():
         config = PAPER_CONFIG.copy()
     elif args.config == 'medium':
         config = MEDIUM_CONFIG.copy()
+    elif args.config == 'random':
+        config = RANDOM_CONFIG.copy()
     else:
         config = QUICK_CONFIG.copy()
     
@@ -437,6 +536,9 @@ def main():
             print("未找到任何结果文件!")
         return
     
+    # 加载边界条件数据
+    boundary_data = load_boundary_conditions(config, data_dir=args.data_dir, verbose=True)
+    
     # JIT 预热
     if not args.skip_warmup:
         print("\n预热 JIT 编译...")
@@ -460,7 +562,9 @@ def main():
         print(f"# 样本 {sample_id + 1}/{config['num_samples']}")
         print(f"{'#'*70}")
         
-        sample_results = run_single_sample(config, sample_id, output_dir, verbose=True)
+        sample_results = run_single_sample(
+            config, sample_id, boundary_data, output_dir, verbose=True
+        )
         all_results.append(sample_results)
     
     total_time = time() - total_start
