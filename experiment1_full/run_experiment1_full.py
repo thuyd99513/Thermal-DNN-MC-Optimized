@@ -252,10 +252,10 @@ def run_single_sample(config, sample_id, boundary_data, output_dir, verbose=True
         energy_history = []
         
         for step in range(mc_steps + 1):
-            # MC 步
+            # MC 步 (使用平衡模式保持原始 S/J 更新比例)
             if step < mc_steps:
                 for net in replicas:
-                    net.mc_step_vectorized()
+                    net.mc_step_vectorized_balanced()
             
             # 进度报告
             if step > 0 and step % report_interval == 0:

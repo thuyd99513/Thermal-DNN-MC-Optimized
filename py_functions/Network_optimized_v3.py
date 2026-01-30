@@ -875,16 +875,100 @@ class NetworkOptimizedV3:
     # 完整 MC 步
     # ========================================================================
     
+    def _compute_update_ratio(self):
+        """
+        计算 S 和 J 更新的比例参数
+        
+        原始实现中，每次随机选择一个变量（S 或 J）更新，概率与变量数量成正比：
+        - P(更新S) = num_variables / num = num_S / (num_S + num_J)
+        - P(更新J) = num_bonds / num = num_J / (num_S + num_J)
+        
+        向量化后，每次 S sweep 更新 S_per_sweep 个 S，每次 J sweep 更新 J_per_sweep 个 J。
+        为保持原始比例，需要计算每次 S sweep 对应多少次 J sweep。
+        """
+        # 原始变量数量
+        num_S = self.N * self.M * self.num_hidden_node_layers  # S 总数
+        num_J = (self.N * self.N_in +                          # J_in
+                 self.N * self.N * self.num_hidden_bond_layers + # J_hidden
+                 self.N_out * self.N)                           # J_out
+        
+        # 每次 sweep 更新的数量
+        # S sweep: 更新所有隐藏层的 S（但边界层在原始实现中也会被更新）
+        S_per_sweep = self.M * self.N * self.num_hidden_node_layers
+        
+        # J sweep: 每层每行更新一个元素
+        J_per_sweep = (self.N +                                 # J_in: N 行
+                       self.N * self.num_hidden_bond_layers +   # J_hidden: (L-2)*N 行
+                       self.N_out)                              # J_out: N_out 行
+        
+        # 原始比例: num_S : num_J
+        # 向量化后每步: S_per_sweep : J_per_sweep * J_sweeps_per_S_sweep
+        # 要保持比例: S_per_sweep / (J_per_sweep * J_sweeps) = num_S / num_J
+        # 解得: J_sweeps = (S_per_sweep * num_J) / (J_per_sweep * num_S)
+        
+        J_sweeps_per_S_sweep = (S_per_sweep * num_J) / (J_per_sweep * num_S)
+        
+        return J_sweeps_per_S_sweep, num_S, num_J, S_per_sweep, J_per_sweep
+    
     @timethis
     def mc_step_vectorized(self):
-        """执行一个完整的 MC 步（更新 S 和 J）"""
+        """
+        执行一个完整的 MC 步（更新 S 和 J）
+        
+        注意：此方法保持原始实现中 S 和 J 的更新比例。
+        原始实现中 P(S) : P(J) = num_S : num_J ≈ 19:1
+        """
         self.update_all_S_vectorized()
         self.update_all_J_vectorized()
     
-    def mc_main_vectorized(self, num_steps=100, verbose=False):
-        """运行多个 MC 步"""
+    @timethis
+    def mc_step_vectorized_balanced(self):
+        """
+        执行一个平衡的 MC 步（保持原始 S/J 更新比例）
+        
+        通过调整 J 更新的频率来匹配原始实现中的 S:J 比例。
+        """
+        J_sweeps_ratio, num_S, num_J, S_per_sweep, J_per_sweep = self._compute_update_ratio()
+        
+        # 更新 S
+        self.update_all_S_vectorized()
+        
+        # 根据比例更新 J
+        # 使用累积方式处理非整数比例
+        if not hasattr(self, '_J_sweep_accumulator'):
+            self._J_sweep_accumulator = 0.0
+        
+        self._J_sweep_accumulator += J_sweeps_ratio
+        
+        while self._J_sweep_accumulator >= 1.0:
+            self.update_all_J_vectorized()
+            self._J_sweep_accumulator -= 1.0
+    
+    def mc_main_vectorized(self, num_steps=100, verbose=False, balanced=True):
+        """
+        运行多个 MC 步
+        
+        Args:
+            num_steps: MC 步数
+            verbose: 是否打印进度
+            balanced: 是否使用平衡模式（保持原始 S/J 比例）
+        """
+        # 打印比例信息
+        if verbose:
+            J_sweeps_ratio, num_S, num_J, S_per_sweep, J_per_sweep = self._compute_update_ratio()
+            print(f"S/J 更新比例信息:")
+            print(f"  num_S = {num_S}, num_J = {num_J}")
+            print(f"  原始比例 num_S:num_J = {num_S/num_J:.2f}:1")
+            print(f"  S_per_sweep = {S_per_sweep}, J_per_sweep = {J_per_sweep}")
+            print(f"  J_sweeps_per_S_sweep = {J_sweeps_ratio:.4f}")
+            print(f"  balanced mode = {balanced}")
+        
         for step in range(num_steps):
-            self.mc_step_vectorized()
+            if balanced:
+                self.mc_step_vectorized_balanced()
+            else:
+                self.mc_step_vectorized()
+            
             self.H_history.append(self.H)
             if verbose and (step + 1) % 10 == 0:
                 print(f"Step {step + 1}/{num_steps}, H = {self.H:.4f}")

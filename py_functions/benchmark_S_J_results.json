@@ -1,0 +1,159 @@
+{
+  "environment": {
+    "timestamp": "2026-01-30 06:09:00",
+    "platform": "Linux-6.1.102-x86_64-with-glibc2.35",
+    "python_version": "3.11.0rc1",
+    "processor": "x86_64",
+    "cpu_count": 6,
+    "slurm": {},
+    "numpy_version": "2.3.3",
+    "numpy_config": "None",
+    "numba_version": "Not installed"
+  },
+  "tests": [
+    {
+      "type": "S_update",
+      "config": {
+        "M": 100,
+        "N": 5,
+        "L": 10,
+        "num_updates": 5000
+      },
+      "serial": {
+        "mean": 0.25554760297139484,
+        "std": 0.03213745623970454,
+        "times": [
+          0.30088305473327637,
+          0.23566317558288574,
+          0.23009657859802246
+        ]
+      },
+      "optimized": {
+        "mean": null,
+        "std": null,
+        "times": null
+      },
+      "speedup": null
+    },
+    {
+      "type": "J_update",
+      "config": {
+        "M": 100,
+        "N": 5,
+        "L": 10,
+        "num_sweeps": 10
+      },
+      "serial": {
+        "mean": 0.026559829711914062,
+        "std": 0.0018381033499846045,
+        "times": [
+          0.025303125381469727,
+          0.025217533111572266,
+          0.029158830642700195
+        ]
+      },
+      "optimized": {
+        "mean": null,
+        "std": null,
+        "times": null
+      },
+      "speedup": null
+    },
+    {
+      "type": "S_update",
+      "config": {
+        "M": 500,
+        "N": 10,
+        "L": 10,
+        "num_updates": 10000
+      },
+      "serial": {
+        "mean": 0.5683012008666992,
+        "std": 0.09958733848914811,
+        "times": [
+          0.48801565170288086,
+          0.5082335472106934,
+          0.7086544036865234
+        ]
+      },
+      "optimized": {
+        "mean": null,
+        "std": null,
+        "times": null
+      },
+      "speedup": null
+    },
+    {
+      "type": "J_update",
+      "config": {
+        "M": 500,
+        "N": 10,
+        "L": 10,
+        "num_sweeps": 5
+      },
+      "serial": {
+        "mean": 0.07443435986836751,
+        "std": 0.00033119904041324015,
+        "times": [
+          0.07406377792358398,
+          0.07486772537231445,
+          0.0743715763092041
+        ]
+      },
+      "optimized": {
+        "mean": null,
+        "std": null,
+        "times": null
+      },
+      "speedup": null
+    },
+    {
+      "type": "S_update",
+      "config": {
+        "M": 1000,
+        "N": 20,
+        "L": 10,
+        "num_updates": 20000
+      },
+      "serial": {
+        "mean": 1.0760540962219238,
+        "std": 0.21225806967490374,
+        "times": [
+          1.3754427433013916,
+          0.9452028274536133,
+          0.9075167179107666
+        ]
+      },
+      "optimized": {
+        "mean": null,
+        "std": null,
+        "times": null
+      },
+      "speedup": null
+    },
+    {
+      "type": "J_update",
+      "config": {
+        "M": 1000,
+        "N": 20,
+        "L": 10,
+        "num_sweeps": 3
+      },
+      "serial": {
+        "mean": 0.052414258321126304,
+        "std": 0.001349253821941097,
+        "times": [
+          0.05431985855102539,
+          0.0513763427734375,
+          0.051546573638916016
+        ]
+      },
+      "optimized": {
+        "mean": null,
+        "std": null,
+        "times": null
+      },
+      "speedup": null
+    }
+  ]
+}
