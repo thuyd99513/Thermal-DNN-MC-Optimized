@@ -1,24 +1,18 @@
 #!/bin/bash
-#SBATCH --job-name=exp1_full
-#SBATCH --output=logs/exp1_%A_%a.out
-#SBATCH --error=logs/exp1_%A_%a.err
+#SBATCH -p vip_33
+#SBATCH -N 1
+#SBATCH -n 1
+#SBATCH -c 24
+#SBATCH -J exp1_full
 #SBATCH --array=0-7
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=32G
-#SBATCH --time=48:00:00
+#SBATCH -o logs/exp1_%A_%a.out
+#SBATCH -e logs/exp1_%A_%a.err
 
-# ============================================================================
-# 实验一完整复现 - SLURM 作业数组脚本
-# 
-# 使用方法:
-#   sbatch submit_slurm.sh
-#
-# 这将提交 8 个并行作业，每个作业运行一个独立样本。
-# 所有作业完成后，运行汇总脚本。
-# ============================================================================
+module purge
+module load miniforge/24.11
+source activate nnsm
 
-# 创建日志目录
+# 创建目录
 mkdir -p logs
 
 # 设置输出目录 (所有作业共享)
@@ -35,13 +29,8 @@ echo "节点: $HOSTNAME"
 echo "输出目录: $OUTPUT_DIR"
 echo "============================================"
 
-# 激活 Python 环境 (根据您的环境修改)
-# source /path/to/your/venv/bin/activate
-# 或者
-# conda activate your_env
-
 # 运行模拟
-python run_experiment1_full.py \
+python3 run_experiment1_full.py \
     --config paper \
     --sample-id $SAMPLE_ID \
     --output-dir $OUTPUT_DIR \
